@@ -44,7 +44,7 @@ class Boid {
         context.lineWidth = 3;
 
         //leg
-        for(let i=0;i<3;i++){
+        for(let i=0;i<2;i++){
             context.save();
             context.translate(0,20+i*10);
             context.rotate(i%2==0 ? leg_angle/180*Math.PI : -leg_angle/180*Math.PI);
