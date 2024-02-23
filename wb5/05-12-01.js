@@ -1,3 +1,4 @@
+//yw
 let canvas = document.getElementById("canvas1");
 if (!(canvas instanceof HTMLCanvasElement))
     throw new Error("Canvas is not HTML Element");
