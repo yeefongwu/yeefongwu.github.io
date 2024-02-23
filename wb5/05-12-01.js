@@ -114,6 +114,6 @@ for(let i = 0; i < total; i += gap){
 
     x = point.x;
     y = point.y;
-    context.fillRect(x, y, 5, 5); 
+    context.fillRect(x-2, y-2, 5, 5); 
 }
 
