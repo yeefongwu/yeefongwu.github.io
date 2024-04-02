@@ -1,45 +1,60 @@
 /*jshint esversion: 6 */
-// @ts-check
+// @ts-ignored
 
-import * as T from "../libs/CS559-Three/build/three.module.js";
-import { GrWorld } from "../libs/CS559-Framework/GrWorld.js";
-import { GrObject } from "../libs/CS559-Framework/GrObject.js";
-import * as InputHelpers from "../libs/CS559/inputHelpers.js";
+import * as T from "https://unpkg.com/three@0.138.3/build/three.module.js";
+import { OrbitControls } from "https://unpkg.com/three@0.120.1/examples/jsm/controls/OrbitControls.js";
 
-let parentOfCanvas = document.getElementById("div1");
-let world = new GrWorld({ where: parentOfCanvas, groundplane: false, lookfrom: new T.Vector3(0, 0, -100), far: 20000 });
+let renderer = new T.WebGLRenderer({preserveDrawingBuffer:true});
+renderer.setSize(500,500);
+document.getElementById("div1").appendChild(renderer.domElement);
+renderer.domElement.id = "canvas";
+let scene = new T.Scene();
+let camera = new T.PerspectiveCamera(75, 1, 0.1, 300000); 
+camera.position.set(0, 5, 20);
+let controls = new OrbitControls(camera, renderer.domElement);
+let ambientLight = new T.AmbientLight(0xffffff, 0.5); 
+scene.add(ambientLight);
 
-class Skybox extends GrObject {
+let directionalLight = new T.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(1, 1, 1); 
+scene.add(directionalLight);
+
+
+
+class Skybox {
     constructor() {
-        let geometry = new T.SphereGeometry(10000, 100, 100);
-        let loader = new T.TextureLoader();
-        //https://polyhaven.com/a/autumn_field
-        let texture = loader.load("Textures/autumn.png");
-        let material = new T.MeshPhongMaterial({ map: texture, side: T.BackSide, flatShading: true });
-        let mesh = new T.Mesh(geometry, material);
-        super("Skybox", mesh);
+        this.geometry = new T.SphereGeometry(10000, 100, 100);
+        this.loader = new T.TextureLoader();
+        this.texture = this.loader.load("Textures/autumn.png");
+        this.material = new T.MeshBasicMaterial({ map: this.texture, side: T.BackSide });
+        this.mesh = new T.Mesh(this.geometry, this.material);
+        return this.mesh;
     }
 }
 
-class MySphere extends GrObject{
-    constructor(type){
-
-        let texture = new T.TextureLoader().load("Textures/bump.png");
-        let geom = new T.SphereGeometry(5);
-        let material;
-        if(type=="bump"){
-             material = new T.MeshStandardMaterial({color:"white",bumpMap:texture});
-             material.bumpScale = 10;
-        }else{
-             material = new T.MeshStandardMaterial({normalMap:texture});
+class MySphere {
+    constructor(type) {
+        this.texture = new T.TextureLoader().load("Textures/bump.png");
+        this.geom = new T.SphereGeometry(5);
+        if(type === "bump") {
+            this.material = new T.MeshStandardMaterial({color: "white", bumpMap: this.texture});
+            this.material.bumpScale = 10;
+        } else {
+            this.material = new T.MeshStandardMaterial({normalMap: this.texture});
         }
-        let mesh = new T.Mesh(geom,material);
-        super("Sphere",mesh);
+
+        this.mesh = new T.Mesh(this.geom, this.material);
+
+        return this.mesh; 
     }
 }
 
-world.add(new Skybox());
+scene.add(new Skybox());
+scene.add(new MySphere("bump"));
 
-world.add(new MySphere("bump"));
+function animate() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+}
 
-world.go();
+animate();

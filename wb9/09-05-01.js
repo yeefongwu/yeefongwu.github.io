@@ -1,12 +1,23 @@
 // @ts-check
 
-import * as T from "../libs/CS559-Three/build/three.module.js";
-import { GrWorld } from "../libs/CS559-Framework/GrWorld.js";
-import { GrObject } from "../libs/CS559-Framework/GrObject.js";
-import * as InputHelpers from "../libs/CS559/inputHelpers.js";
+import * as T from "https://unpkg.com/three@0.138.3/build/three.module.js";
+import { OrbitControls } from "https://unpkg.com/three@0.120.1/examples/jsm/controls/OrbitControls.js";
 
-let parentOfCanvas = document.getElementById("div1");
-let world = new GrWorld({ where: parentOfCanvas, groundplane:false });
+let renderer = new T.WebGLRenderer({preserveDrawingBuffer:true});
+renderer.setSize(500,500);
+document.getElementById("div1").appendChild(renderer.domElement);
+renderer.domElement.id = "canvas";
+let scene = new T.Scene();
+let camera = new T.PerspectiveCamera(75, 1, 0.1, 300000); 
+camera.position.set(0, 5, 20);
+let controls = new OrbitControls(camera, renderer.domElement);
+let ambientLight = new T.AmbientLight(0xffffff, 0.5); 
+scene.add(ambientLight);
+
+let directionalLight = new T.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(1, 1, 1); 
+scene.add(directionalLight);
+
 
 
 let loader = new T.CubeTextureLoader();
@@ -19,17 +30,22 @@ let textureCube = loader.load( [
 ] );
 
 let material = new T.MeshBasicMaterial( { color: 0xffffff, envMap: textureCube } );
-world.scene.background = textureCube;
+scene.background = textureCube;
 
-class MyCube extends GrObject{
+class MyCube{
     constructor(material){
-        let geom = new T.BoxGeometry(5,5,5);
-        let mesh = new T.Mesh(geom,material);
-        super("Cube",mesh);
+         this.geom = new T.BoxGeometry(5,5,5);
+        this.mesh = new T.Mesh(this.geom,material);
+        return this.mesh;
     }
 }
 let cube = new MyCube(material);
-world.add(cube);
+scene.add(cube);
 
-world.go();
+function animate() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+}
+
+animate();
 
